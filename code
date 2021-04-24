@@ -1,0 +1,268 @@
+#include<p18f4550.inc>
+
+lp_cnt1 	 	set 0x00
+lp_cnt2 		set 0x01
+lp_cnt3 		set 0x02
+lp_cnt4 		set 0x03
+
+			org 0x00
+			goto start
+			org 0x08
+			retfie
+			org 0x18
+			retfie
+			
+			
+;delay 0.2s
+
+dup_nop 	macro kk
+ 			variable i
+i = 0
+ 			while i < kk
+ 			nop
+i += 1
+			endw
+			endm
+
+delay0.2s 	movlw d'100'		; 0.2second delay for 20MHz
+ 			movwf lp_cnt2,A
+again1 		movlw d'100'
+ 			movwf lp_cnt1,A
+again2 		dup_nop d'100'
+ 			decfsz lp_cnt1,F,A
+ 			bra again2
+ 			decfsz lp_cnt2,F,A
+ 			bra again1
+ 			nop
+ 			return
+
+
+;delay 0.4s
+dup_nop1 	macro kkk
+ 			variable ii
+ii = 0
+ 			while ii < kkk
+ 			nop
+ii += 1
+			endw
+			endm
+
+delay0.4s 	movlw d'200'		; 0.4second delay for 20MHz
+ 			movwf lp_cnt2,A
+again3 		movlw d'100'
+ 			movwf lp_cnt1,A
+again4 		dup_nop1 d'100'
+ 			decfsz lp_cnt1,F,A
+ 			bra again4
+ 			decfsz lp_cnt2,F,A
+ 			bra again3
+ 			nop
+ 			return
+
+
+short       BSF	PORTC,2,A ;Buzzzer ON		
+            CALL delay0.2s		;turn on for 0.2s
+            BCF PORTC,2,A		;turn off the buzzer
+            CALL delay0.4s
+            return
+
+
+long        BSF PORTC,2,A		;set buzzer
+            CALL delay0.4s		;turn on for 0.4s
+            BCF PORTC,2,A		;turn off the buzzer3
+            CALL delay0.4s
+            return
+  
+
+NUM0		MOVLW 0x01   ;morse 0 = - - - - -
+			MOVWF PORTD,A
+			CALL long
+			CALL long
+			CALL long
+			CALL long
+			CALL long
+			RETURN
+			
+NUM1		MOVLW 0x01    ;morse 1 = * - - - -
+			MOVWF PORTD,A
+			CALL short
+			CALL long
+			CALL long
+			CALL long
+			CALL long
+			RETURN
+			
+NUM2		MOVLW 0x01    ;morse 2 = * * - - -
+			MOVWF PORTD,A
+			CALL short
+			CALL short
+			CALL long
+			CALL long
+			CALL long
+			RETURN
+			
+NUM3		MOVLW 0x01    ;morse 3 = * * * - -
+			MOVWF PORTD,A
+			CALL short
+			CALL short
+			CALL short
+			CALL long
+			CALL long
+			RETURN
+			
+NUM4		MOVLW 0x01    ;morse 4 = * * * * -
+			MOVWF PORTD,A
+			CALL short
+			CALL short
+			CALL short
+			CALL short
+			CALL long
+			RETURN
+			
+NUM5		MOVLW 0x01    ;morse 5 = * * * * *
+			MOVWF PORTD,A
+			CALL short
+			CALL short
+			CALL short
+			CALL short
+			CALL short
+			RETURN
+			
+NUM6		MOVLW 0x01    ;morse 6 = - * * * *
+			MOVWF PORTD,A
+			CALL long
+			CALL short
+			CALL short
+			CALL short
+			CALL short
+			RETURN
+			
+NUM7		MOVLW 0x01    ;morse 7 = - - * * *
+			MOVWF PORTD,A
+			CALL long
+			CALL long
+			CALL short
+			CALL short
+			CALL short
+			RETURN
+			
+NUM8		MOVLW 0x01    ;morse 8 = - - - * *
+			MOVWF PORTD,A
+			CALL long
+			CALL long
+			CALL long
+			CALL short
+			CALL short
+			
+			RETURN
+			
+NUM9		MOVLW 0x01    ;morse 9 = - - - - *
+			MOVWF PORTD,A
+			CALL long
+			CALL long
+			CALL long
+			CALL long
+			CALL short			
+			RETURN
+			
+CHARA		MOVLW 0x0A    ;morse A = * -
+			MOVWF PORTD,A
+			CALL short
+			CALL long
+			RETURN
+
+CHARB		MOVLW 0x0B    ;morse B = * - - -
+			MOVWF PORTD,A
+			CALL long
+			CALL short
+			CALL short
+			CALL short
+			RETURN
+
+CHARC		MOVLW 0x0C    ;morse C = - * - *
+			MOVWF PORTD,A
+			CALL long
+			CALL short
+			CALL long
+			CALL short
+			RETURN
+
+CHARD		MOVLW 0x0D    ;morse D = - * *
+			MOVWF PORTD,A
+			CALL long
+			CALL short
+			CALL short
+			RETURN
+			
+BINTANG		MOVLW 0x01    ;morse * = * * * - *
+			MOVWF PORTD,A
+			CALL short
+			CALL short
+			CALL short
+			CALL long
+			CALL short
+			RETURN
+
+CLEAR		CLRF PORTD,A  ;clear display
+			RETURN
+			
+			
+;INPUT KEYPAD
+
+KEYPAD		BCF PORTD,7,A
+			BSF PORTD,4,A
+			BTFSS PORTB,0,A
+			CALL NUM1			
+			BTFSS PORTB,1,A
+			CALL NUM2			
+			BTFSS PORTB,2,A
+			CALL NUM3
+			BTFSS PORTB,3,A
+			CALL CHARA
+			
+			BCF PORTD,4,A
+			BSF PORTD,5,A
+			BTFSS PORTB,0,A
+			CALL NUM4			
+			BTFSS PORTB,1,A
+			CALL NUM5			
+			BTFSS PORTB,2,A
+			CALL NUM6
+			BTFSS PORTB,3,A
+			CALL CHARB
+			
+			BCF PORTD,5,A
+			BSF PORTD,6,A
+			BTFSS PORTB,0,A
+			CALL NUM7			
+			BTFSS PORTB,1,A
+			CALL NUM8			
+			BTFSS PORTB,2,A
+			CALL NUM9
+			BTFSS PORTB,3,A
+			CALL CHARC
+			
+			BCF PORTD,6,A
+			BSF PORTD,7,A
+			BTFSS PORTB,0,A
+			CALL BINTANG			
+			BTFSS PORTB,1,A
+			CALL NUM0	
+			BTFSS PORTB,2,A
+			CALL CLEAR		
+			BTFSS PORTB,3,A
+			CALL CHARD
+			RETURN
+		
+
+
+
+;START
+
+start		SETF TRISB,A
+			CLRF TRISC,A
+			CLRF TRISD,A
+
+loop		CALL KEYPAD
+			BRA loop
+			end
