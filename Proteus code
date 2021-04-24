@@ -1,0 +1,300 @@
+#include<p18f4550.inc>
+
+lp_cnt1 	 	set 0x00
+lp_cnt2 		set 0x01
+lp_cnt3 		set 0x02
+lp_cnt4 		set 0x03
+
+			org 0x00
+			goto start
+			org 0x08
+			retfie
+			org 0x18
+			retfie
+			
+			
+;delay 0.2s
+
+dup_nop 	macro kk
+ 			variable i
+i = 0
+ 			while i < kk
+ 			nop
+i += 1
+			endw
+			endm
+
+delay0.2s 	movlw d'100'		; 0.2second delay for 20MHz
+ 			movwf lp_cnt2,A
+again1 		movlw d'100'
+ 			movwf lp_cnt1,A
+again2 		dup_nop d'100'
+ 			decfsz lp_cnt1,F,A
+ 			bra again2
+ 			decfsz lp_cnt2,F,A
+ 			bra again1
+ 			nop
+ 			return
+;delay 0.4s
+dup_nop1 	macro kkk
+ 			variable ii
+ii = 0
+ 			while ii < kkk
+ 			nop
+ii += 1
+			endw
+			endm
+
+delay0.4s 	movlw d'200'		; 0.4second delay for 20MHz
+ 			movwf lp_cnt2,A
+again3 		movlw d'100'
+ 			movwf lp_cnt1,A
+again4 		dup_nop1 d'100'
+ 			decfsz lp_cnt1,F,A
+ 			bra again4
+ 			decfsz lp_cnt2,F,A
+ 			bra again3
+ 			nop
+ 			return
+
+short       BSF	PORTC,2,A ;Buzzzer ON		
+            CALL delay0.2s		;turn on for 0.2s
+            BCF PORTC,2,A		;turn off the buzzer
+            CALL delay0.4s
+            return
+
+
+long        BSF PORTD,3,A		;set buzzer
+            CALL delay0.4s		;turn on for 0.4s
+            BCF PORTD,3,A		;turn off the buzzer3
+            CALL delay0.4s
+            return
+            
+			
+;configure LCD
+
+LCDCmd    	MOVWF PORTB,A   ; Send setup configure     
+            BCF PORTC,0,A
+            BCF PORTC,1,A
+            BSF PORTC,2,A
+            CALL delay0.2s
+            BCF PORTC,2,A
+            return
+
+LCDData  	MOVWF PORTB,A   ;Send display data     
+            BSF PORTC,0,A
+            BCF PORTC,1,A
+            BSF PORTC,2,A
+            CALL delay0.2s
+            BCF PORTC,2,A
+            return
+            
+LCDCon		MOVLW 0X38		;setup lcd
+			CALL LCDCmd
+			MOVLW 0X0C
+			CALL LCDCmd
+			MOVLW 0X01
+			CALL LCDCmd
+			CALL morse
+			RETURN
+
+
+morse		MOVLW d'77'		;to display m
+			CALL LCDData
+			MOVLW d'79'		;to display o		
+			CALL LCDData
+			MOVLW d'82'		;to display r
+			CALL LCDData
+			MOVLW d'83'		;to display s
+			CALL LCDData
+			MOVLW d'69'		;to display e
+			CALL LCDData
+			MOVLW d'32'		;to space
+			CALL LCDData
+			MOVLW d'67'		;to display c
+			CALL LCDData
+			MOVLW d'79'		;to display o
+			CALL LCDData
+			MOVLW d'68'		;to display d
+			CALL LCDData
+			MOVLW d'69'		;to display e
+			CALL LCDData
+			MOVLW 0XC0		; to display to second line
+			CALL LCDCmd
+			MOVLW d'126'	;to display right arrow
+			CALL LCDData
+			RETURN
+	
+
+NUM0		MOVLW d'48'   ;morse 0 = - - - - -
+			CALL LCDData
+			CALL long
+			CALL long
+			CALL long
+			CALL long
+			CALL long
+			RETURN
+			
+NUM1		MOVLW d'49'   ;morse 1 = * - - - -
+			CALL LCDData
+			CALL short
+			CALL long
+			CALL long
+			CALL long
+			CALL long
+			RETURN
+			
+NUM2		MOVLW d'50'   ;morse 2 = * * - - -
+			CALL LCDData
+			CALL short
+			CALL short
+			CALL long
+			CALL long
+			CALL long
+			RETURN
+			
+NUM3		MOVLW d'51'   ;morse 3 = * * * - -
+			CALL LCDData
+			CALL short
+			CALL short
+			CALL short
+			CALL long
+			CALL long
+			RETURN
+			
+NUM4		MOVLW d'52'   ;morse 4 = * * * * -
+			CALL LCDData
+			CALL short
+			CALL short
+			CALL short
+			CALL short
+			CALL long
+			RETURN
+			
+NUM5		MOVLW d'53'   ;morse 5 = * * * * *
+			CALL LCDData
+			CALL short
+			CALL short
+			CALL short
+			CALL short
+			CALL short
+			RETURN
+			
+NUM6		MOVLW d'54'   ;morse 6 = - * * * *
+			CALL LCDData
+			CALL long
+			CALL short
+			CALL short
+			CALL short
+			CALL short
+			RETURN
+			
+NUM7		MOVLW d'55'   ;morse 7 = - - * * *
+			CALL LCDData
+			CALL long
+			CALL long
+			CALL short
+			CALL short
+			CALL short
+			RETURN
+			
+NUM8		MOVLW d'56'   ;morse 8 = - - - * *
+			CALL LCDData
+			CALL long
+			CALL long
+			CALL long
+			CALL short
+			CALL short
+			
+			RETURN
+			
+NUM9		MOVLW d'57'   ;morse 9 = - - - - *
+			CALL LCDData
+			CALL long
+			CALL long
+			CALL long
+			CALL long
+			CALL short			
+			RETURN
+			
+INSTA		MOVLW 0x01   ;to clear lcd
+			CALL LCDCmd
+			CALL morse
+			RETURN
+			
+BINTANG		MOVLW d'42'   ;morse * = * * * - *
+			CALL LCDData
+			CALL short
+			CALL short
+			CALL short
+			CALL long
+			CALL short
+			RETURN
+			
+			
+;INPUT KEYPAD
+
+KEYPAD		BCF PORTD,7,A
+			BSF PORTD,4,A
+			BTFSC PORTD,0,A
+			CALL NUM1			
+			BTFSC PORTD,1,A
+			CALL NUM2			
+			BTFSC PORTD,2,A
+			CALL NUM3
+			
+			BCF PORTD,4,A
+			BSF PORTD,5,A
+			BTFSC PORTD,0,A
+			CALL NUM4			
+			BTFSC PORTD,1,A
+			CALL NUM5			
+			BTFSC PORTD,2,A
+			CALL NUM6
+			
+			BCF PORTD,5,A
+			BSF PORTD,6,A
+			BTFSC PORTD,0,A
+			CALL NUM7			
+			BTFSC PORTD,1,A
+			CALL NUM8			
+			BTFSC PORTD,2,A
+			CALL NUM9
+			
+			BCF PORTD,6,A
+			BSF PORTD,7,A
+			BTFSC PORTD,0,A
+			CALL BINTANG			
+			BTFSC PORTD,1,A
+			CALL NUM0			
+			BTFSC PORTD,2,A
+			CALL INSTA
+			RETURN
+			
+		
+	
+	
+		
+
+
+
+
+
+;START
+
+start		CLRF TRISB,A
+			MOVLW B'11000000'
+			MOVWF TRISC,A
+			MOVLW B'00000111'
+			MOVWF TRISD,A
+			CALL LCDCon
+			BTFSS PORTB,0 ;check SW1 condition
+		
+FIRST 		BSF PORTD,7,A ;execute if SW1 is pressed
+			CALL short
+			
+
+check		CALL KEYPAD
+			
+			BRA check
+			end
