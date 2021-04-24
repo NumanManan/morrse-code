@@ -1,5 +1,4 @@
 For PTK40 CODE
-change the BTFSS to BTFSC
 #include<p18f4550.inc>
 
 lp_cnt1 	 	set 0x00
